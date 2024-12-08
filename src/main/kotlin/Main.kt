@@ -5,8 +5,7 @@ import dev.moyar.beenroaster.dev.moyar.beenroaster.device_controller.DeviceContr
 import spark.Spark
 
 fun main() {
-    // Configure Spark
-    Spark.port(8082) // Set the port number
+    Spark.port(8082)
     Spark.webSocket("/", ArtisanWebSocketHandler::class.java)
     Spark.webSocket("/device/controller", DeviceControllerWebSocket::class.java)
 
