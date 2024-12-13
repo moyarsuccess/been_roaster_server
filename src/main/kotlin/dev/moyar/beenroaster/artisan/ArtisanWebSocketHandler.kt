@@ -14,7 +14,7 @@ class ArtisanWebSocketHandler {
 
     @OnWebSocketConnect
     fun onConnect(session: Session) {
-        println("Connected: ${session.remoteAddress}")
+        println("$TAG Connected: ${session.remoteAddress}")
         sessions[session.remoteAddress.address.hostAddress] = session
     }
 
@@ -38,21 +38,25 @@ class ArtisanWebSocketHandler {
 
     @OnWebSocketClose
     fun onClose(session: Session, statusCode: Int, reason: String?) {
-        println("Disconnected: ${session.remoteAddress}, Reason: $reason")
+        println("$TAG Disconnected: ${session.remoteAddress}, Reason: $reason")
         sessions.remove(session.remoteAddress.address.hostAddress)
     }
 
     private fun fetchTemperature(): Float {
+        // TODO: Call hardware manager service
         return Random.nextDouble(18.0, 48.0).toFloat()
     }
 
     companion object {
 
+        private const val TAG = "ARTISAN CONTROLLER: "
         private val gson = Gson()
         private val sessions = ConcurrentHashMap<String, Session>()
 
         fun sendPush(obj: Any) {
-            sessions.values.forEach { it.remote.sendString(gson.toJson(obj)) }
+            val value = gson.toJson(obj)
+            println("$TAG $value")
+            sessions.values.forEach { it.remote.sendString(value) }
         }
     }
 }
