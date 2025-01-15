@@ -23,4 +23,7 @@ enum class DeviceCommand {
 
     @SerializedName("second_crack_ended")
     SECOND_CRACK_ENDED,
+
+    @SerializedName("get_temperature")
+    GET_TEMPERATURE,
 }
