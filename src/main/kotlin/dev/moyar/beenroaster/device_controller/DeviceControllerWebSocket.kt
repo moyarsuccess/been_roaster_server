@@ -37,25 +37,56 @@ class DeviceControllerWebSocket {
 
     private fun DeviceControllerCommand.handle(session: Session) {
         when (command) {
-            DeviceCommand.START_ROASTER -> ArtisanWebSocketHandler.sendPush(ArtisanPushMessage.startRoasting)
-            DeviceCommand.END_ROASTING -> ArtisanWebSocketHandler.sendPush(ArtisanPushMessage.endRoasting)
-            DeviceCommand.COLOR_CHANGE -> ArtisanWebSocketHandler.sendPush(ArtisanPushEvent.colorChange)
-            DeviceCommand.FIRST_CRACK_STARTED -> ArtisanWebSocketHandler.sendPush(ArtisanPushEvent.firstCrackStarted)
-            DeviceCommand.FIRST_CRACK_ENDED -> ArtisanWebSocketHandler.sendPush(ArtisanPushEvent.firstCrackEnded)
-            DeviceCommand.SECOND_CRACK_STARTED -> ArtisanWebSocketHandler.sendPush(ArtisanPushEvent.secondCrackStarted)
-            DeviceCommand.GET_TEMPERATURE -> ArtisanWebSocketHandler.sendPush(ArtisanPushEvent.secondCrackEnded)
+            DeviceCommand.START_ROASTER -> {
+                ArtisanWebSocketHandler.sendPush(ArtisanPushMessage.startRoasting)
+                session.send(DeviceControllerResponse.RoasterStarted)
+            }
+
+            DeviceCommand.END_ROASTING -> {
+                ArtisanWebSocketHandler.sendPush(ArtisanPushMessage.endRoasting)
+                session.send(DeviceControllerResponse.RoasterEnded)
+            }
+
+            DeviceCommand.COLOR_CHANGE -> {
+                ArtisanWebSocketHandler.sendPush(ArtisanPushEvent.colorChange)
+                session.send(DeviceControllerResponse.ColorChangeSent)
+            }
+
+            DeviceCommand.FIRST_CRACK_STARTED -> {
+                ArtisanWebSocketHandler.sendPush(ArtisanPushEvent.firstCrackStarted)
+                session.send(DeviceControllerResponse.FirstCrackStarted)
+            }
+
+            DeviceCommand.FIRST_CRACK_ENDED -> {
+                ArtisanWebSocketHandler.sendPush(ArtisanPushEvent.firstCrackEnded)
+                session.send(DeviceControllerResponse.FirstCrackEnded)
+            }
+
+            DeviceCommand.SECOND_CRACK_STARTED -> {
+                ArtisanWebSocketHandler.sendPush(ArtisanPushEvent.secondCrackStarted)
+                session.send(DeviceControllerResponse.SecondCrackStarted)
+            }
+
             DeviceCommand.SECOND_CRACK_ENDED -> {
-                val response = TempResponse(tempHelper.envTemp.toString(), tempHelper.beenTemp.toString())
-                val responseJson = gson.toJson(response)
-                session.remote.sendString(responseJson)
+                ArtisanWebSocketHandler.sendPush(ArtisanPushEvent.secondCrackEnded)
+                session.send(DeviceControllerResponse.SecondCrackEnded)
+            }
+
+            DeviceCommand.GET_TEMPERATURE -> {
+                session.send(
+                    DeviceControllerResponse.GetTemperatureResponseReady(
+                        tempHelper.envTemp.toString(),
+                        tempHelper.beenTemp.toString(),
+                    )
+                )
             }
         }
     }
 
-    data class TempResponse(
-        val envTemp: String,
-        val beenTemp: String,
-    )
+    private fun Session.send(response: DeviceControllerResponse) {
+        remote.sendString(response.json)
+        println("Sent to client: ${response.json}")
+    }
 
     companion object {
         private const val TAG = "DEVICE CONTROLLER: "

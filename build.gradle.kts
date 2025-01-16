@@ -19,6 +19,8 @@ dependencies {
     val koinVersion = "4.0.1"
     implementation(project.dependencies.platform("io.insert-koin:koin-bom:$koinVersion"))
     implementation("io.insert-koin:koin-core")
+
+    implementation("org.json:json:20090211")
 }
 
 tasks.test {
